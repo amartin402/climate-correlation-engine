@@ -1,0 +1,22 @@
+{
+    "name": "Climate Correlation Engine",
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+
+    "features": {
+        "ghcr.io/devcontainers-extra/features/terraform-asdf:2": {
+            "version": "1.7.0"
+        }
+    },
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bruin.bruin",
+                "hashicorp.terraform",
+                "ms-python.python"
+            ]
+        }
+    },
+
+"postCreateCommand": "bash .devcontainer/setup.sh"
+}
