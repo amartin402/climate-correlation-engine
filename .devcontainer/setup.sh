@@ -91,11 +91,21 @@ python3 -m pip install uv --quiet
 echo ">>> uv version: $(uv --version)"
 
 # -------------------------------------------------------
-# 6. PYTHON DEPENDENCIES
+# 6. PYTHON DEPENDENCIES — isolated venv for Bruin
 # -------------------------------------------------------
+VENV_PATH="/workspaces/climate-correlation-engine/.venv"
+
 if [ -f requirements.txt ]; then
-  echo ">>> Installing Python requirements via uv..."
-  uv pip install --system -r requirements.txt
+  echo ">>> Creating uv virtual environment at $VENV_PATH..."
+  uv venv "$VENV_PATH" --clear
+  source "$VENV_PATH/bin/activate"
+  uv pip install -r requirements.txt
+
+  # Auto-activate venv in every new shell session
+  grep -qxF "source $VENV_PATH/bin/activate" ~/.bashrc \
+    || echo "source $VENV_PATH/bin/activate" >> ~/.bashrc
+
+  echo ">>> Python venv ready at $VENV_PATH"
 else
   echo ">>> No requirements.txt found — skipping Python dependency install."
 fi

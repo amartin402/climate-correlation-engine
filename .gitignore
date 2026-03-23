@@ -1,72 +1,52 @@
-
-# GCP credentials
-*.json
-service-account-key.json
-*credentials*.json
-*service-account*.json
-
-# devcontainer is needed for setup
+# -------------------------------------------------------
+# Items that can be commit for reproducible
+# -------------------------------------------------------
+!terraform.tfvars.example
+!bruin.config.yml.example
 !.devcontainer/devcontainer.json
 
-# Google auth / gcloud
-.gcloud/
-.config/gcloud/
-
-# gcloud temp files
-.gsutil/
-.bq/
-
-# Terraform
-.terraform/
-terraform.tfstate*
-*.tfstate
-*.tfstate.*
-crash.log
-
-# Terraform variable files (can contain secrets)
-*.tfvars
-*.tfvars.json
-
+# -------------------------------------------------------
 # Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# UV
-uv.lock
-
-# UV cache (optional but recommended)
-.uv/
-
-# Environments
-.env
-.env.*
-.envrc
-.venv
+# -------------------------------------------------------
 .venv/
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
 
-# Files
-*.parquet
-*.csv
+# -------------------------------------------------------
+# Terraform
+# -------------------------------------------------------
+# Local state — never commit this. It contains resource IDs
+# and can contain sensitive values.
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/terraform.tfvars
 
-# Local pipeline state tracking
-.last_run_temp
-.last_run_sea
+# -------------------------------------------------------
+# GCP / Google Cloud
+# -------------------------------------------------------
+# Application default credentials — never commit
+*.json
 
-# Logs
+# -------------------------------------------------------
+# Bruin
+# -------------------------------------------------------
+.bruin/
+.bruin/config.yml
+.last_run_*
+
+# -------------------------------------------------------
+# Local / OS
+# -------------------------------------------------------
+.DS_Store
+.env
+*.env
 *.log
-
-# CLI configs
-*.bq
-
-# VS Code
-.vscode/
+/tmp/

@@ -1,0 +1,35 @@
+# ~/.bruin/config.yml
+# -------------------------------------------------------
+# BRUIN WORKSPACE CONFIGURATION — TEMPLATE
+# -------------------------------------------------------
+# Copy this file to ~/.bruin/config.yml on your machine
+# (or inside Codespaces) and fill in your real values.
+#
+# NEVER commit this file — it contains credentials.
+# It lives in your home directory, outside the repo.
+#
+# HOW TO CREATE A SERVICE ACCOUNT KEY:
+#   1. Go to GCP Console → IAM & Admin → Service Accounts
+#   2. Create a new service account named "bruin-runner"
+#   3. Grant it these roles:
+#        - BigQuery Data Editor
+#        - BigQuery Job User
+#        - Storage Object Admin
+#   4. Create a JSON key → download it
+#   5. Place it at: ~/.gcp/bruin-service-account.json
+#   6. Set the path below
+#   NOTE: If the service_account_file is set to an empty string or omitted entirely, 
+#         Bruin will pick up the ADC credentials automatically and instead use the project_id only.
+#         ADC login becomes an optional fallback for quick manual testing, not a dependency.
+# -------------------------------------------------------
+
+default_environment: default
+
+environments:
+  default:
+    connections:
+      google_cloud_platform:
+        - name: gcp_climate
+          project_id: "your-gcp-project-id"
+          # Path to your downloaded service account JSON key
+          service_account_file: "/home/codespace/.gcp/bruin-service-account.json"

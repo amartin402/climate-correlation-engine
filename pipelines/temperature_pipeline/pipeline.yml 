@@ -1,0 +1,31 @@
+# pipelines/temperature_pipeline/pipeline.yml
+# -------------------------------------------------------
+# BRUIN PIPELINE DEFINITION: Temperature
+# -------------------------------------------------------
+# This file tells Bruin:
+#   - What this pipeline is called
+#   - What schedule to run it on
+#   - Which GCP connection to use
+#   - Where the Python interpreter lives (our uv venv)
+#
+# Bruin reads this file and uses it to orchestrate the
+# Python assets (load_to_staging.py) and SQL assets
+# (in bigquery/) in the correct dependency order.
+# -------------------------------------------------------
+
+name: temperature_pipeline
+schedule: "0 2 * * *"   # Run daily at 02:00 UTC
+
+# Default connection used by all assets in this pipeline.
+# The connection named 'gcp_climate' must be configured in
+# your Bruin workspace config (~/.bruin/config.yml) with
+# your service account credentials.
+default_connections:
+  google_cloud_platform: gcp_climate
+
+# Point Bruin at the uv venv Python interpreter so it uses
+# the same packages installed by setup.sh
+environments:
+  default:
+    python:
+      executable: /workspaces/climate-correlation-engine/.venv/bin/python

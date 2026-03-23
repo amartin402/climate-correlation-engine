@@ -64,7 +64,7 @@ Historical measurements tracking changes in global mean sea level.
 # 📂 Project Structure
 
 ```text
-climate-data-platform/
+climate-correlation-engine/
 │
 ├── terraform/          # Infrastructure as Code for GCS and BigQuery
 ├── pipelines/          # Bruin workflow orchestration
@@ -80,8 +80,8 @@ climate-data-platform/
 
 ### 1. Clone the Repository
 ```bash 
-git clone [https://github.com/](https://github.com/)<your-username>/climate-data-platform
-cd climate-data-platform
+git clone https://github.com/amartin402/climate-correlation-engine
+cd climate-correlation-engine
 ```
 
 ### 2. Configure Google Cloud
