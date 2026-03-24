@@ -1,17 +1,17 @@
-"""
-ingestion/download_sea_level.py
----------------------------------
-Downloads the global sea level rise dataset from Our World in Data
-and uploads the raw CSV to the GCS data lake.
+# """
+# ingestion/download_sea_level.py
+# ---------------------------------
+# Downloads the global sea level rise dataset from Our World in Data
+# and uploads the raw CSV to the GCS data lake.
 
-Source columns (as received from Our World in Data):
-  - Entity                                    : str   (e.g. "World")
-  - Code                                      : str   (e.g. "OWID_WRL")
-  - Day                                       : date  (e.g. "1880-04-15")
-  - Church and White (2011)                   : float (sea level change in mm, nullable)
-  - UHSLC                                     : float (sea level change in mm, nullable)
-  - Average of Church and White (2011) and UHSLC : float (sea level change in mm, nullable)
-"""
+# Source columns (as received from Our World in Data):
+#   - Entity                                    : str   (e.g. "World")
+#   - Code                                      : str   (e.g. "OWID_WRL")
+#   - Day                                       : date  (e.g. "1880-04-15")
+#   - Church and White (2011)                   : float (sea level change in mm, nullable)
+#   - UHSLC                                     : float (sea level change in mm, nullable)
+#   - Average of Church and White (2011) and UHSLC : float (sea level change in mm, nullable)
+# """
 
 import os
 import requests

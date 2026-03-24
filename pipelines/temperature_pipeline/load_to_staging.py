@@ -1,15 +1,22 @@
-"""
-pipelines/temperature_pipeline/load_to_staging.py
----------------------------------------------------
-Reads the raw temperature anomaly CSV from GCS and loads it
-into the BigQuery staging table.
+""" @bruin
+name: staging.load_temperature
+type: python
+depends:
+  - ingest.download_temperature
+@bruin"""
 
-STAGING PATTERN:
-  We use WRITE_TRUNCATE (full replace) for staging. Each run
-  replaces the entire staging table with the latest download.
-  This keeps staging simple — it always reflects the latest
-  raw file in GCS, nothing more.
-"""
+# """
+# pipelines/temperature_pipeline/load_to_staging.py
+# ---------------------------------------------------
+# Reads the raw temperature anomaly CSV from GCS and loads it
+# into the BigQuery staging table.
+
+# STAGING PATTERN:
+#   We use WRITE_TRUNCATE (full replace) for staging. Each run
+#   replaces the entire staging table with the latest download.
+#   This keeps staging simple — it always reflects the latest
+#   raw file in GCS, nothing more.
+# """
 
 import os
 import pandas as pd

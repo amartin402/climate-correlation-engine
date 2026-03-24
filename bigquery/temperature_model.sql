@@ -1,3 +1,10 @@
+/* @bruin
+name: mart.fact_temperature
+type: bq.sql
+depends:
+  - staging.load_temperature
+@bruin */
+
 -- bigquery/temperature_model.sql
 -- -------------------------------------------------------
 -- TRANSFORMATION: staging → mart for temperature anomaly data

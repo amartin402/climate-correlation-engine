@@ -1,9 +1,9 @@
-"""
-pipelines/sea_level_pipeline/load_to_staging.py
--------------------------------------------------
-Reads the raw sea level CSV from GCS and loads it
-into the BigQuery staging table.
-"""
+# """
+# pipelines/sea_level_pipeline/load_to_staging.py
+# -------------------------------------------------
+# Reads the raw sea level CSV from GCS and loads it
+# into the BigQuery staging table.
+# """
 
 import os
 import pandas as pd

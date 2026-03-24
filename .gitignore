@@ -50,3 +50,6 @@ terraform/terraform.tfvars
 *.env
 *.log
 /tmp/
+.bruin.yml
+logs/runs
+logs/*.log

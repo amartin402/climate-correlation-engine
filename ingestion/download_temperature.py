@@ -1,15 +1,20 @@
-"""
-ingestion/download_temperature.py
-----------------------------------
-Downloads the global temperature anomaly dataset from Our World in Data
-and uploads the raw CSV to the GCS data lake.
+""" @bruin
+name: ingest.download_temperature
+type: python
+@bruin"""
 
-Source columns (as received from Our World in Data):
-  - Entity                      : str   (e.g. "Northern Hemisphere", "World")
-  - Code                        : str   (e.g. "OWID_NH")
-  - Year                        : int   (e.g. 1850)
-  - Global temperature anomaly  : float (deviation from baseline in °C, e.g. -0.055067)
-"""
+# """
+# ingestion/download_temperature.py
+# ----------------------------------
+# Downloads the global temperature anomaly dataset from Our World in Data
+# and uploads the raw CSV to the GCS data lake.
+
+# Source columns (as received from Our World in Data):
+#   - Entity                      : str   (e.g. "Northern Hemisphere", "World")
+#   - Code                        : str   (e.g. "OWID_NH")
+#   - Year                        : int   (e.g. 1850)
+#   - Global temperature anomaly  : float (deviation from baseline in °C, e.g. -0.055067)
+# """
 
 import os
 import requests
