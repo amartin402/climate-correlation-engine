@@ -1,8 +1,7 @@
-# ~/.bruin/config.yml
 # -------------------------------------------------------
 # BRUIN WORKSPACE CONFIGURATION — TEMPLATE
 # -------------------------------------------------------
-# Copy this file to ~/.bruin/config.yml on your machine
+# Rename this file to ~/.bruin.yml on your machine
 # (or inside Codespaces) and fill in your real values.
 #
 # NEVER commit this file — it contains credentials.
@@ -18,6 +17,7 @@
 #   4. Create a JSON key → download it
 #   5. Place it at: ~/.gcp/bruin-service-account.json
 #   6. Set the path below
+#
 #   NOTE: If the service_account_file is set to an empty string or omitted entirely, 
 #         Bruin will pick up the ADC credentials automatically and instead use the project_id only.
 #         ADC login becomes an optional fallback for quick manual testing, not a dependency.
@@ -31,5 +31,7 @@ environments:
       google_cloud_platform:
         - name: gcp_climate
           project_id: "your-gcp-project-id"
+        # Use ADC — picks up gcloud auth application-default login credentials
+        #   use_application_default_credentials: true
           # Path to your downloaded service account JSON key
           service_account_file: "/home/codespace/.gcp/bruin-service-account.json"

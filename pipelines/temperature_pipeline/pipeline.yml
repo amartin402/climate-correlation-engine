@@ -7,14 +7,27 @@
 #   - What schedule to run it on
 #   - Which GCP connection to use
 #   - Where the Python interpreter lives (our uv venv)
+#   - Which extra folders to scan for assets (includes)
 #
-# Bruin reads this file and uses it to orchestrate the
-# Python assets (load_to_staging.py) and SQL assets
-# (in bigquery/) in the correct dependency order.
+# WHY includes IS NEEDED:
+#   Bruin scans for @bruin asset blocks relative to the
+#   pipeline.yml location by default. Since our ingestion
+#   script lives in ingestion/ and the SQL transformation
+#   lives in bigquery/ — both outside this pipeline folder
+#   — we must explicitly tell Bruin to include those paths.
+#   Without this, Bruin only finds load_to_staging.py and
+#   reports "1 asset" instead of the full chain of 3.
 # -------------------------------------------------------
 
 name: temperature_pipeline
-schedule: "0 2 * * *"   # Run daily at 02:00 UTC
+# schedule: "0 2 * * *"
+
+# Scan these folders for @bruin asset definitions in
+# addition to this pipeline's own folder.
+# Paths are relative to the repo root.
+# includes:
+#   - ingestion/download_temperature.py
+#   - bigquery/temperature_model.sql
 
 # Default connection used by all assets in this pipeline.
 # The connection named 'gcp_climate' must be configured in

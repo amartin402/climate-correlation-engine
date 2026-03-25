@@ -1,11 +1,10 @@
-""" @bruin
+"""@bruin
 name: staging.load_temperature
 type: python
 depends:
   - ingest.download_temperature
 @bruin"""
 
-# """
 # pipelines/temperature_pipeline/load_to_staging.py
 # ---------------------------------------------------
 # Reads the raw temperature anomaly CSV from GCS and loads it
@@ -16,7 +15,6 @@ depends:
 #   replaces the entire staging table with the latest download.
 #   This keeps staging simple — it always reflects the latest
 #   raw file in GCS, nothing more.
-# """
 
 import os
 import pandas as pd
