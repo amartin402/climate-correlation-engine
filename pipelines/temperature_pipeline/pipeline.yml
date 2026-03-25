@@ -20,7 +20,7 @@
 # -------------------------------------------------------
 
 name: temperature_pipeline
-# schedule: "0 2 * * *"
+schedule: "0 2 * * *"
 
 # Scan these folders for @bruin asset definitions in
 # addition to this pipeline's own folder.
@@ -31,7 +31,7 @@ name: temperature_pipeline
 
 # Default connection used by all assets in this pipeline.
 # The connection named 'gcp_climate' must be configured in
-# your Bruin workspace config (~/.bruin/config.yml) with
+# your Bruin workspace config (~/.bruin.yml) with
 # your service account credentials.
 default_connections:
   google_cloud_platform: gcp_climate

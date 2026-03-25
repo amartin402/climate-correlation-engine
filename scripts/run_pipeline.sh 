@@ -39,15 +39,15 @@ echo ""
 
 # ---- STEP 1: Ingest raw data to GCS ----
 echo ">>> STEP 1: Ingesting raw data to GCS..."
-$VENV_PYTHON ingestion/download_temperature.py
-$VENV_PYTHON ingestion/download_sea_level.py
+$VENV_PYTHON pipelines/temperature_pipeline/assets/ingestion/download_temperature.py
+$VENV_PYTHON pipelines/sea_level_pipeline/assets/ingestion/download_sea_level.py
 echo ">>> Step 1 complete."
 echo ""
 
 # ---- STEP 2: Load GCS → BigQuery staging ----
 echo ">>> STEP 2: Loading raw data into BigQuery staging..."
-$VENV_PYTHON pipelines/temperature_pipeline/load_to_staging.py
-$VENV_PYTHON pipelines/sea_level_pipeline/load_to_staging.py
+$VENV_PYTHON pipelines/temperature_pipeline/assets/staging/load_to_staging.py
+$VENV_PYTHON pipelines/sea_level_pipeline/assets/staging/load_to_staging.py
 echo ">>> Step 2 complete."
 echo ""
 
@@ -57,13 +57,13 @@ bq query \
   --project_id="$GCP_PROJECT" \
   --use_legacy_sql=false \
   --format=none \
-  < bigquery/temperature_model.sql
+  < pipelines/temperature_pipeline/assets/bigquery/temperature_model.sql
 
 bq query \
   --project_id="$GCP_PROJECT" \
   --use_legacy_sql=false \
   --format=none \
-  < bigquery/sea_level_model.sql
+  < pipelines/sea_level_pipeline/assets/bigquery/sea_level_model.sql
 
 echo ">>> Step 3 complete."
 echo ""

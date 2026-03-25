@@ -1,5 +1,5 @@
 # -------------------------------------------------------
-# Items that can be commit for reproducible
+# Items that can be commited for reproducible
 # -------------------------------------------------------
 !terraform.tfvars.example
 !bruin.config.yml.example
@@ -39,7 +39,7 @@ terraform/terraform.tfvars
 # Bruin
 # -------------------------------------------------------
 .bruin/
-.bruin/config.yml
+.bruin.yml
 .last_run_*
 
 # -------------------------------------------------------
@@ -51,6 +51,5 @@ terraform/terraform.tfvars
 *.env
 *.log
 /tmp/
-.bruin.yml
 logs/runs
 logs/*.log
