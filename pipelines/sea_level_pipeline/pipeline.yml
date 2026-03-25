@@ -1,7 +1,7 @@
-# pipelines/sea_level_pipeline/pipeline.yml
+# bruin run pipelines/sea_level_pipeline/pipeline.yml
 
 name: sea_level_pipeline
-schedule: "0 2 * * *"   # Run daily at 02:00 UTC
+# schedule: "0 2 * * *"
 
 default_connections:
   google_cloud_platform: gcp_climate

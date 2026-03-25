@@ -1,17 +1,25 @@
-# """
-# ingestion/download_sea_level.py
+"""@bruin
+name: ingest.download_sea_level
+type: python
+@bruin"""
+
+# pipelines/sea_level_pipeline/assets/download_sea_level.py
 # ---------------------------------
 # Downloads the global sea level rise dataset from Our World in Data
 # and uploads the raw CSV to the GCS data lake.
-
-# Source columns (as received from Our World in Data):
-#   - Entity                                    : str   (e.g. "World")
-#   - Code                                      : str   (e.g. "OWID_WRL")
-#   - Day                                       : date  (e.g. "1880-04-15")
-#   - Church and White (2011)                   : float (sea level change in mm, nullable)
-#   - UHSLC                                     : float (sea level change in mm, nullable)
-#   - Average of Church and White (2011) and UHSLC : float (sea level change in mm, nullable)
-# """
+#
+# Source columns returned by the URL (useColumnShortNames=true returns
+# pre-normalised snake_case names directly):
+#   - entity                        : str   (e.g. "World")
+#   - code                          : str   (e.g. "OWID_WRL")
+#   - day                           : date  (e.g. "1880-04-15")
+#   - sea_level_church_and_white_2011: float (Church & White 2011 series, mm)
+#   - sea_level_uhslc               : float (UHSLC series, mm, nullable)
+#   - sea_level_average             : float (average of both series, mm)
+#
+# We rename sea_level_average → sea_level_change to match our
+# BigQuery staging schema column name, as it is the primary
+# measurement column used downstream in the mart transformation.
 
 import os
 import requests
@@ -27,14 +35,20 @@ SEA_LEVEL_URL = (
 LOCAL_FILE = "/tmp/sea_level_raw.csv"
 GCS_OBJECT = "raw/sea_level/sea_level_raw.csv"
 
-# Exact source column names → snake_case BigQuery-friendly names
+# Columns we expect to exist in the download (snake_case from API)
+EXPECTED_SOURCE_COLUMNS = [
+    "entity",
+    "code",
+    "day",
+    "sea_level_church_and_white_2011",
+    "sea_level_uhslc",
+    "sea_level_average",
+]
+
+# Rename sea_level_average → sea_level_change to match staging schema.
+# The other columns already match — no rename needed.
 COLUMN_RENAME_MAP = {
-    "Entity":                                       "entity",
-    "Code":                                         "code",
-    "Day":                                          "day",
-    "Church and White (2011)":                      "church_and_white_2011",
-    "UHSLC":                                        "uhslc",
-    "Average of Church and White (2011) and UHSLC": "avg_church_white_and_uhslc",
+    "sea_level_average": "sea_level_change",
 }
 
 
@@ -54,34 +68,38 @@ def download_sea_level() -> pd.DataFrame:
 
 def normalise_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Rename source columns to snake_case, enforce data types, and
-    preserve all rows (including those where UHSLC is null) since
-    nullable float columns are valid in the staging schema.
+    Validate source columns, rename to staging schema names,
+    enforce data types, and preserve all rows.
+    Nulls in sea_level_uhslc are valid — the UHSLC series has
+    gaps. Filtering belongs in the staging → mart transform.
     """
     # Validate that all expected source columns are present
-    missing = [col for col in COLUMN_RENAME_MAP if col not in df.columns]
+    missing = [col for col in EXPECTED_SOURCE_COLUMNS if col not in df.columns]
     if missing:
-        raise ValueError(f"Unexpected source schema. Missing columns: {missing}")
+        raise ValueError(
+            f"Unexpected source schema. Missing columns: {missing}\n"
+            f"Actual columns received: {list(df.columns)}"
+        )
 
-    # Rename to snake_case
+    # Rename sea_level_average → sea_level_change
     df = df.rename(columns=COLUMN_RENAME_MAP)
 
     # Enforce data types
-    df["entity"]                  = df["entity"].astype(str)
-    df["code"]                    = df["code"].astype(str)
-    df["day"]                     = pd.to_datetime(df["day"], format="%Y-%m-%d").dt.date
-    df["church_and_white_2011"]   = pd.to_numeric(df["church_and_white_2011"],  errors="coerce")
-    df["uhslc"]                   = pd.to_numeric(df["uhslc"],                  errors="coerce")
-    df["avg_church_white_and_uhslc"] = pd.to_numeric(df["avg_church_white_and_uhslc"], errors="coerce")
+    df["entity"]                      = df["entity"].astype(str)
+    df["code"]                        = df["code"].astype(str)
+    df["day"]                         = pd.to_datetime(df["day"], format="%Y-%m-%d").dt.date
+    df["sea_level_church_and_white_2011"] = pd.to_numeric(df["sea_level_church_and_white_2011"], errors="coerce")
+    df["sea_level_uhslc"]             = pd.to_numeric(df["sea_level_uhslc"], errors="coerce")
+    df["sea_level_change"]            = pd.to_numeric(df["sea_level_change"], errors="coerce")
 
-    # Retain column order to match BigQuery staging schema
+    # Retain only the columns needed, in the correct order for BigQuery staging
     df = df[[
         "entity",
         "code",
         "day",
-        "church_and_white_2011",
-        "uhslc",
-        "avg_church_white_and_uhslc",
+        "sea_level_church_and_white_2011",
+        "sea_level_uhslc",
+        "sea_level_change",
     ]]
 
     print(f"  Normalised to {len(df):,} rows, columns: {list(df.columns)}")

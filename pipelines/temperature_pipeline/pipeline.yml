@@ -1,4 +1,4 @@
-# pipelines/temperature_pipeline/pipeline.yml
+# bruin run pipelines/temperature_pipeline/pipeline.yml
 # -------------------------------------------------------
 # BRUIN PIPELINE DEFINITION: Temperature
 # -------------------------------------------------------

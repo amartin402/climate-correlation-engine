@@ -47,6 +47,7 @@ terraform/terraform.tfvars
 # -------------------------------------------------------
 .DS_Store
 .env
+.venv
 *.env
 *.log
 /tmp/
