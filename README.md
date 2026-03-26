@@ -35,6 +35,15 @@ Staging is a direct copy of what is in GCS — no transformation, no business lo
 
 ---
 
+## 🔍 Problem Statement
+Climate change is one of the most debated topics of our time, yet the underlying data is rarely presented in a way that is accessible or easy to interrogate. This project asks a straightforward question: is there a measurable correlation between rising global temperatures and rising sea levels over time?
+
+As global temperatures increase, ice sheets and glaciers melt and ocean water expands — both of which contribute to sea level rise. While the scientific consensus supports this relationship, visualising it clearly using real historical data tells a more compelling story than theory alone.
+
+The pipeline ingests two publicly available datasets from **[Our World in Data](https://ourworldindata.org/)** — **🌡️ global temperature anomalies** (yearly deviations from the long-term average in °C) and **🌊 global sea level rise** (cumulative change in mm) — transforms them into a clean analytical model in BigQuery, and surfaces both trends side by side in a Looker Studio dashboard covering 1993 to 2020. The result is a reproducible, cloud-native data product that makes the relationship between these two climate indicators visible and queryable.
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology | Why |
@@ -47,18 +56,6 @@ Staging is a direct copy of what is in GCS — no transformation, no business lo
 | Visualisation | Looker Studio | Free, native BigQuery connector, shareable dashboards |
 | Language | Python 3 | pandas + google-cloud-* libraries |
 | Dependency Management | uv | Fast, reliable Python package management |
-
----
-
-## 📊 Datasets Used
-
-The pipeline uses publicly available climate datasets from **Our World in Data**:
-
-### 🌡️ Global Temperature Anomalies
-Yearly deviations from long-term global temperature averages.
-
-### 🌊 Global Sea Level Rise
-Historical measurements tracking changes in global mean sea level.
 
 ---
 
@@ -268,6 +265,34 @@ bruin run pipelines/sea_level_pipeline/pipeline.yml
 
 ---
 
+## 📈 Data Model
+
+### `climate_mart.fact_temperature`
+
+| Column | Type | Description |
+|---|---|---|
+| year | INTEGER | Calendar year |
+| entity | STRING | Country or region (e.g. 'World') |
+| temperature_anomaly | FLOAT | Annual deviation from 1951–1980 baseline (°C) |
+| anomaly_5yr_avg | FLOAT | 5-year rolling average anomaly (°C) |
+
+Partitioned by: `year` (range 1850–2100, interval 10)
+Clustered by: `entity`
+
+### `climate_mart.fact_sea_level`
+
+| Column | Type | Description |
+|---|---|---|
+| year | INTEGER | Calendar year |
+| entity | STRING | Country or region |
+| sea_level_change | FLOAT | Cumulative rise from 1880 baseline (mm) |
+| yoy_change_mm | FLOAT | Year-over-year change (mm) |
+
+Partitioned by: `year` (range 1850–2100, interval 10)
+Clustered by: `entity`
+
+---
+
 ## 📈 Analytics Dashboard
 
 The [dashboard](https://lookerstudio.google.com/s/prJqqQKm6lI) provides three analytical views:
@@ -305,34 +330,6 @@ The `schedule` field in `pipeline.yml` (`0 2 * * *`) documents the intended dail
 | GitHub Actions (recommended) | Free on public repos | Low — one workflow YAML file |
 | Bruin Cloud | Paid managed service | Very low — connect your repo |
 | GCP Cloud Run Jobs | Pay per execution (~free at this scale) | Medium — containerise the pipeline |
-
----
-
-## 📈 Data Model
-
-### `climate_mart.fact_temperature`
-
-| Column | Type | Description |
-|---|---|---|
-| year | INTEGER | Calendar year |
-| entity | STRING | Country or region (e.g. 'World') |
-| temperature_anomaly | FLOAT | Annual deviation from 1951–1980 baseline (°C) |
-| anomaly_5yr_avg | FLOAT | 5-year rolling average anomaly (°C) |
-
-Partitioned by: `year` (range 1850–2100, interval 10)
-Clustered by: `entity`
-
-### `climate_mart.fact_sea_level`
-
-| Column | Type | Description |
-|---|---|---|
-| year | INTEGER | Calendar year |
-| entity | STRING | Country or region |
-| sea_level_change | FLOAT | Cumulative rise from 1880 baseline (mm) |
-| yoy_change_mm | FLOAT | Year-over-year change (mm) |
-
-Partitioned by: `year` (range 1850–2100, interval 10)
-Clustered by: `entity`
 
 ---
 
