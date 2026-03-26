@@ -11,30 +11,31 @@ Built as a portfolio project demonstrating modern data engineering practices:
 
 ---
 
-# 🏗️ Architecture
+## 🏗️ Architecture
 
 The pipeline follows a structured flow from raw data ingestion to analytics:
 
-1. **Extract**  
+1. **Extract**
    Python scripts fetch climate data from **Our World in Data**.
 
-2. **Load (Data Lake)**  
+2. **Load (Data Lake)**
    Raw CSV files are stored in **Google Cloud Storage (GCS)**.
 
-3. **Stage (Data Warehouse)**  
+3. **Stage (Data Warehouse)**
    Data is loaded into **BigQuery staging tables**.
 
-4. **Transform (Data Warehouse Mart)**  
+4. **Transform (Data Warehouse Mart)**
    SQL transformations aggregate and model the data into optimized **BigQuery fact tables** (partitioned by year, clustered by entity).
 
-5. **Visualize**  
+5. **Visualize**
    Insights are presented through a **Looker Studio dashboard**.
 
-   **Why two layers in BigQuery (staging + mart)?**
-   Staging is a direct copy of what is in GCS — no transformation, no business logic. If something goes wrong in a transformation, you can always re-run the SQL against staging without re-downloading the source data. The mart is what dashboards connect to — it is clean, optimised, and never changes shape unexpectedly.
+**Why two layers in BigQuery (staging + mart)?**
+Staging is a direct copy of what is in GCS — no transformation, no business logic. If something goes wrong in a transformation, you can always re-run the SQL against staging without re-downloading the source data. The mart is what dashboards connect to — it is clean, optimised, and never changes shape unexpectedly.
+
 ---
 
-# 🛠️ Technology Stack
+## 🛠️ Technology Stack
 
 | Layer | Technology | Why |
 |---|---|---|
@@ -49,7 +50,7 @@ The pipeline follows a structured flow from raw data ingestion to analytics:
 
 ---
 
-# 📊 Datasets Used
+## 📊 Datasets Used
 
 The pipeline uses publicly available climate datasets from **Our World in Data**:
 
@@ -61,7 +62,7 @@ Historical measurements tracking changes in global mean sea level.
 
 ---
 
-# 📂 Project Structure
+## 📂 Project Structure
 
 ```text
 climate-correlation-engine/
@@ -79,7 +80,7 @@ climate-correlation-engine/
 ├── pipelines/
 │   ├── temperature_pipeline/
 │   │       ├── pipeline.yml        # Bruin schedule + venv config
-│   │       └── assets/ 
+│   │       └── assets/
 │   │            ├── bigquery/
 │   │            │     └── temperature_model.sql   # staging → mart (5yr rolling avg)
 │   │            ├── ingestion/
@@ -89,22 +90,23 @@ climate-correlation-engine/
 │   │
 │   └── sea_level_pipeline/
 │           ├── pipeline.yml        # Bruin schedule + venv config
-│           └── assets/ 
+│           └── assets/
 │                ├── bigquery/
 │                │     └── sea_level_model.sql     # staging → mart (YoY change in mm)
 │                ├── ingestion/
 │                │     └── download_sea_level.py   # Download sea level CSV → upload to GCS
 │                └── staging/
-│                      └── load_to_staging.py     # GCS → BigQuery staging                 
+│                      └── load_to_staging.py      # GCS → BigQuery staging
 │
 ├── scripts/
-│   └── run_pipeline.sh         # Runs all steps end-to-end
+│   └── run_pipeline.sh         # Runs all steps end-to-end via Bruin
 │
-├── bruin.config.yml.example    # Bruin credentials template
+├── bruin.config.yml.example    # Bruin ADC config template — copy to .bruin.yml
 ├── requirements.txt            # Python dependencies
 ├── .gitignore
 └── README.md
 ```
+
 ---
 
 ## 🚀 Setup & Execution
@@ -117,10 +119,10 @@ climate-correlation-engine/
    - Google Cloud SDK (`gcloud`, `bq`, `gsutil`)
    - Bruin CLI
    - Python uv + all packages from `requirements.txt` into an isolated venv at `.venv/`
-4. Wait for the green "Devcontainer setup complete" message in the terminal.
+4. Wait for the **"Devcontainer setup complete"** message in the terminal.
 
 **What the venv is for:**
-The `.venv` is a Python virtual environment managed by `uv`. All your ingestion and pipeline scripts run inside it. Bruin is configured to use `.venv/bin/python` as its interpreter, so it always uses the same packages you installed — no version conflicts, no "works on my machine" problems.
+The `.venv` is a Python virtual environment managed by `uv`. All ingestion and pipeline scripts run inside it. Bruin is configured to use `.venv/bin/python` as its interpreter, so it always uses the same package versions — no version conflicts, no "works on my machine" problems.
 
 ---
 
@@ -129,12 +131,7 @@ The `.venv` is a Python virtual environment managed by `uv`. All your ingestion 
 1. Go to [console.cloud.google.com](https://console.cloud.google.com)
 2. Create a new project (e.g. `climate-pipeline-123`). Note the **Project ID** — it looks like `climate-pipeline-123`, not the display name.
 3. Enable billing on the project (required for BigQuery and GCS).
-4. Enable these APIs:
-   ```
-   BigQuery API
-   Cloud Storage API
-   ```
-   You can enable them via the Console (search "API Library") or with:
+4. Enable the required APIs:
    ```bash
    gcloud services enable bigquery.googleapis.com storage.googleapis.com \
      --project=your-project-id
@@ -144,24 +141,33 @@ The `.venv` is a Python virtual environment managed by `uv`. All your ingestion 
 
 ### Step 3 — Authenticate with GCP
 
-Inside Codespaces terminal:
+Inside the Codespaces terminal:
 
 ```bash
 # Log in with your Google account — opens a browser link
 gcloud auth application-default login
+
+# Set the quota project to avoid "API not enabled" errors
+gcloud auth application-default set-quota-project your-project-id
 
 # Set your active project
 gcloud config set project your-project-id
 ```
 
 **What application-default login does:**
-It creates a credentials file at `~/.config/gcloud/application_default_credentials.json`. The Python `google-cloud-*` libraries automatically pick this file up — you don't need to pass credentials anywhere in code. This is the standard approach for development environments.
+It creates a credentials file at `~/.config/gcloud/application_default_credentials.json`. All `google-cloud-*` Python libraries and Bruin automatically pick this file up via Application Default Credentials (ADC) — no credentials need to be passed in code.
+
+> **After every Codespaces restart** you must re-run these three commands. To verify your auth is active at any time:
+> ```bash
+> gcloud auth application-default print-access-token
+> ```
+> A long token string means you are authenticated.
 
 ---
 
 ### Step 4 — Provision GCP Infrastructure with Terraform
 
-Terraform creates the GCS bucket and BigQuery datasets/tables. You only need to run this once (or again if you destroy and recreate).
+Terraform creates the GCS bucket and BigQuery datasets/tables. Run this once (or again if you destroy and recreate).
 
 ```bash
 # Copy the example vars file and fill in your project ID
@@ -188,63 +194,43 @@ cd ..
 | BQ Table | `fact_sea_level` | Partitioned by year, clustered by entity |
 
 **Why partitioning and clustering matter:**
-BigQuery charges per byte scanned. A dashboard query like "show global temperature from 1990 to 2020" on an unpartitioned table scans every row since 1880. With year-range partitioning, BigQuery skips all partitions outside 1990–2020 automatically — typically an 80–90% cost reduction on this dataset. Clustering by `entity` means filtering to `WHERE entity = 'World'` reads only that entity's sorted blocks, not the full partition.
+BigQuery charges per byte scanned. A dashboard query filtering to 1990–2020 on an unpartitioned table scans every row since 1880. With year-range partitioning, BigQuery skips all partitions outside the query range — typically an 80–90% cost reduction. Clustering by `entity` means filtering `WHERE entity = 'World'` reads only that entity's sorted blocks, not the full partition.
 
 ---
 
-### Step 5 — Configure Bruin Credentials
+### Step 5 — Configure Bruin
 
-Bruin needs a service account to connect to BigQuery on your behalf. Or for development environment testing you can ommit the service_account_file path and let Bruin use the Application Default Credentials (ADC) to Authenticate when running the project.
+Bruin uses Application Default Credentials (ADC) for authentication in development — the same credentials set up in Step 3. No service account key is needed for local development.
 
-**Create a service account:**
+Copy the config template to the project root and set your project ID:
+
 ```bash
-# Create the service account
-gcloud iam service-accounts create bruin-runner \
-  --display-name="Bruin Pipeline Runner" \
-  --project=your-project-id
-
-# Grant it the required roles
-gcloud projects add-iam-policy-binding your-project-id \
-  --member="serviceAccount:bruin-runner@your-project-id.iam.gserviceaccount.com" \
-  --role="roles/bigquery.dataEditor"
-
-gcloud projects add-iam-policy-binding your-project-id \
-  --member="serviceAccount:bruin-runner@your-project-id.iam.gserviceaccount.com" \
-  --role="roles/bigquery.jobUser"
-
-gcloud projects add-iam-policy-binding your-project-id \
-  --member="serviceAccount:bruin-runner@your-project-id.iam.gserviceaccount.com" \
-  --role="roles/storage.objectAdmin"
-
-# Download the JSON key
-mkdir -p ~/.gcp
-gcloud iam service-accounts keys create ~/.gcp/bruin-service-account.json \
-  --iam-account=bruin-runner@your-project-id.iam.gserviceaccount.com
+cp bruin.config.yml.example .bruin.yml
+# Edit .bruin.yml and replace "your-gcp-project-id" with your actual project ID
 ```
 
-**Create the Bruin config:**
-```bash
-mkdir -p ~/.bruin
-cp bruin.config.yml.example ~/.bruin.yml
-# Edit ~/.bruin.yml and set your project_id
-```
+The `.bruin.yml` file is gitignored — it never gets committed to the repository.
+
+> **For production / CI/CD:** A service account key should be used instead of ADC.
+> See `bruin.config.yml.example` for the service account configuration options.
 
 ---
 
 ### Step 6 — Set Environment Variables
 
-The pipeline scripts read `GCS_BUCKET` and `GCP_PROJECT` from environment variables. Add them to your shell session (or append to `~/.bashrc` to persist):
+The pipeline scripts read `GCS_BUCKET` and `GCP_PROJECT` from environment variables.
 
 ```bash
 export GCS_BUCKET="your-project-id-climate-data-lake"
 export GCP_PROJECT="your-project-id"
 ```
 
-To persist across Codespaces restarts:
-```bash
-echo 'export GCS_BUCKET="your-project-id-climate-data-lake"' >> ~/.bashrc
-echo 'export GCP_PROJECT="your-project-id"' >> ~/.bashrc
-```
+To persist across Codespaces restarts, store these as **Codespaces secrets**:
+1. Go to **github.com → Settings → Codespaces → Secrets**
+2. Add `GCS_BUCKET` with value `your-project-id-climate-data-lake`
+3. Add `GCP_PROJECT` with value `your-project-id`
+
+Codespaces secrets are injected automatically into every container as environment variables.
 
 ---
 
@@ -254,17 +240,17 @@ echo 'export GCP_PROJECT="your-project-id"' >> ~/.bashrc
 bash scripts/run_pipeline.sh
 ```
 
-This runs three steps in order:
+This runs both pipelines end-to-end via Bruin, which executes each pipeline's three assets in dependency order:
 
-**Step 1 — Ingest:** Downloads CSVs from Our World in Data and uploads them to your GCS bucket under `raw/temperature/` and `raw/sea_level/`.
+```
+ingest.download_*          ← downloads CSV from Our World in Data → uploads to GCS
+        ↓
+staging.load_*             ← reads GCS CSV → loads into BigQuery staging (WRITE_TRUNCATE)
+        ↓
+mart.fact_*                ← transforms staging → BigQuery mart (partitioned + clustered)
+```
 
-**Step 2 — Stage:** Reads the CSVs from GCS and loads them into `climate_staging.stg_temperature` and `climate_staging.stg_sea_level` in BigQuery. Each run fully replaces the staging tables (WRITE_TRUNCATE) — staging always reflects the latest raw data.
-
-**Step 3 — Transform:** Runs the SQL in `bigquery/` against BigQuery. This creates `climate_mart.fact_temperature` and `climate_mart.fact_sea_level` with:
-- 5-year rolling average for temperature (smooths year-to-year noise)
-- Year-over-year sea level change in mm
-
-You can also run Bruin's orchestrated pipeline directly:
+You can also run each pipeline individually:
 ```bash
 bruin run pipelines/temperature_pipeline/pipeline.yml
 bruin run pipelines/sea_level_pipeline/pipeline.yml
@@ -272,39 +258,53 @@ bruin run pipelines/sea_level_pipeline/pipeline.yml
 
 ---
 
-## 📈 Analytics Dashboard
+### Step 8 — Build the Looker Studio Dashboard
 
-The [dashboard](https://lookerstudio.google.com/s/prJqqQKm6lI) provides three primary analytical views:
-
-* **Global Temperature Trend**: A line chart showing annual temperature anomalies.
-- Dimension: `year`
-- Metric: `anomaly_5yr_avg`
-- Filter: `entity = 'World'` `start_end_year > '1992'` `start_end_year < '2021'`
-- This shows the long-term warming trend as a smooth line
-
-* **Hemsiphere Temperature Distribution**: A bar chart showing the hemsiphere annual temperature anomalies.
-- Dimension: `year`
-- Metric: `temperature_anomaly`
-- Filter: `hemsiphere = 'Southern Hemisphere'` `hemsiphere = 'Northern Hemisphere'` `start_end_year > '1992'` `start_end_year < '2021'`
-- This shows stacked bar chart of the hemsipheres warming.
-
-* **Sea Level Change**: A line chart visualizing long-term rising sea levels.
-- Dimension: `year`
-- Metric: `sea_level_change`
-- Filter: `entity = 'World'` `start_end_year > '1992'` `start_end_year < '2021'`
-- This shows cumulative sea level rise in mm.
+1. Go to [lookerstudio.google.com](https://lookerstudio.google.com)
+2. Click **Create → Report**
+3. Select **BigQuery** as the data source
+4. Choose your project → `climate_mart` → `fact_temperature`
+5. Add a second data source: `climate_mart` → `fact_sea_level`
 
 ---
 
-## 🔄 Daily Automated Runs (Bruin Scheduling)
+## 📈 Analytics Dashboard
 
-The `pipeline.yml` files set `schedule: "0 2 * * *"` — daily at 02:00 UTC. To activate Bruin's scheduler daemon:
+The [dashboard](https://lookerstudio.google.com/s/prJqqQKm6lI) provides three analytical views:
 
-```bash
-bruin schedule start
-```
+**Global Temperature Trend** — line chart showing annual temperature anomalies:
+- Dimension: `year`
+- Metric: `anomaly_5yr_avg`
+- Filter: `entity = 'World'`
+- Shows the long-term warming trend as a smooth 5-year rolling average line
 
-Bruin will run both pipelines daily, re-downloading the latest data, refreshing staging, and updating the mart. Since Our World in Data updates annually, the daily run is primarily for resilience — it ensures the pipeline stays healthy and your infrastructure stays warm.
+**Hemisphere Temperature Distribution** — bar chart showing hemisphere annual temperature anomalies:
+- Dimension: `year`
+- Metric: `anomaly_5yr_avg`
+- Filter: `entity = 'Southern Hemisphere'` or `entity = 'Northern Hemisphere'`
+- Shows a stacked bar chart of hemisphere warming
+
+**Sea Level Change** — line chart visualising long-term rising sea levels:
+- Dimension: `year`
+- Metric: `sea_level_change`
+- Filter: `entity = 'World'`
+- Shows cumulative sea level rise in mm
+
+<img src="image/dashboard.png" alt="Looker Studio Dashboard" width="500">
+
+---
+
+## 🔄 Scheduling
+
+The `schedule` field in `pipeline.yml` (`0 2 * * *`) documents the intended daily cadence and is used by external orchestrators. The Bruin open-source CLI does not include a built-in scheduler daemon — pipelines are triggered manually with `bruin run` or via an external scheduler.
+
+**Options for automated scheduling:**
+
+| Option | Cost | Effort |
+|---|---|---|
+| GitHub Actions (recommended) | Free on public repos | Low — one workflow YAML file |
+| Bruin Cloud | Paid managed service | Very low — connect your repo |
+| GCP Cloud Run Jobs | Pay per execution (~free at this scale) | Medium — containerise the pipeline |
 
 ---
 
@@ -340,7 +340,7 @@ Clustered by: `entity`
 
 - **Data quality checks** — validate row counts, null rates, and anomaly bounds before loading to mart
 - **Incremental loading** — only process new years rather than full refresh each run
-- **CI/CD** — GitHub Actions to validate Terraform plans and SQL on pull requests
+- **CI/CD** — GitHub Actions workflow for automated daily runs and Terraform plan validation on pull requests
 - **Schema detection** — auto-detect column renames in Our World in Data source files
 - **Additional datasets** — CO₂ emissions, Arctic ice extent, extreme weather events
 
@@ -348,11 +348,10 @@ Clustered by: `entity`
 
 ## 🔒 Security Notes
 
-- `terraform.tfvars` is gitignored — never commit your project ID combined with any credentials
-- Service account keys (`~/.gcp/`) are stored outside the repo in your home directory
-- `~/.bruin.yml` is stored outside the repo — never commit it
-- Application default credentials (`~/.config/gcloud/`) are Codespaces-local and not persisted to the repo
+- `terraform.tfvars` is gitignored — never commit your real project ID alongside credentials
+- `.bruin.yml` is gitignored — stored at the project root but never committed
+- Service account keys (`~/.gcp/`) are stored outside the repo in the home directory
+- Application default credentials (`~/.config/gcloud/`) are Codespaces-local and never persisted to the repo
+- `GCS_BUCKET` and `GCP_PROJECT` are stored as Codespaces secrets, not hardcoded
 
 ---
-
-**Author:** Data Engineering Portfolio Project
