@@ -40,11 +40,6 @@ depends:
 --   The first year for each entity will have NULL yoy_change
 --   (no prior year to compare against) — this is correct.
 --
--- NOTE ON ORDER BY:
---   ORDER BY is intentionally omitted from the final SELECT.
---   BigQuery does not allow ORDER BY in a CREATE TABLE AS SELECT
---   when PARTITION BY is used. Physical organisation is handled
---   by PARTITION BY year and CLUSTER BY entity instead.
 -- -------------------------------------------------------
 
 CREATE OR REPLACE TABLE `climate_mart.fact_sea_level`

@@ -1,7 +1,7 @@
 # -------------------------------------------------------
 # BRUIN WORKSPACE CONFIGURATION — TEMPLATE
 # -------------------------------------------------------
-# Rename this file to ~/.bruin.yml on your machine
+# Rename this file to .bruin.yml on your machine
 # (or inside Codespaces) and fill in your real values.
 #
 # NEVER commit this file — it contains credentials.

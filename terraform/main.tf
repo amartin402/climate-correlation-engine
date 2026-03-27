@@ -78,7 +78,7 @@ resource "google_bigquery_table" "stg_sea_level" {
 # PARTITIONING: We partition by year using an INTEGER
 # RANGE partition. This means BigQuery only scans the
 # partitions (year ranges) relevant to a query — e.g. a
-# dashboard filtering to 1990–2020 skips all other data.
+# dashboard filtering to 1993–2020 skips all other data.
 # This reduces cost and speeds up queries.
 #
 # CLUSTERING: Within each partition we cluster by entity.

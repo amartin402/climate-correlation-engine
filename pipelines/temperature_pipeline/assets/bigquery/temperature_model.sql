@@ -28,15 +28,6 @@ depends:
 --   The first 4 years for each entity will have a partial
 --   average (fewer than 5 data points) — this is correct
 --   and preferable to NULL for early years on a dashboard.
---
--- NOTE ON ORDER BY:
---   ORDER BY is intentionally omitted from the final SELECT.
---   BigQuery does not allow ORDER BY in a CREATE TABLE AS SELECT
---   when PARTITION BY is used — it raises:
---   "Result of ORDER BY queries cannot be partitioned by field"
---   The table is physically organised by the PARTITION BY year
---   and CLUSTER BY entity definitions instead, which is more
---   efficient than ORDER BY for analytical queries.
 -- -------------------------------------------------------
 
 CREATE OR REPLACE TABLE `climate_mart.fact_temperature`
